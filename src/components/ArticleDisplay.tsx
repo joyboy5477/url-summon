@@ -1,6 +1,3 @@
-import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-
 interface ArticleDisplayProps {
   title?: string;
   content?: string;
@@ -12,8 +9,8 @@ export const ArticleDisplay = ({ title, content, author, date }: ArticleDisplayP
   if (!content) return null;
 
   return (
-    <Card className="w-full mt-8 bg-white/5 border-white/10">
-      <ScrollArea className="h-[60vh] rounded-lg">
+    <div className="w-full mt-8 bg-white/5 border border-white/10 rounded-lg">
+      <div className="h-[60vh] overflow-y-auto rounded-lg">
         <div className="p-6 space-y-4">
           {title && (
             <h1 className="text-2xl font-bold text-white/90">{title}</h1>
@@ -29,7 +26,7 @@ export const ArticleDisplay = ({ title, content, author, date }: ArticleDisplayP
             <div dangerouslySetInnerHTML={{ __html: content }} />
           </div>
         </div>
-      </ScrollArea>
-    </Card>
+      </div>
+    </div>
   );
 };
