@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { UrlInput } from "@/components/UrlInput";
 import { ArticleDisplay } from "@/components/ArticleDisplay";
-import { useToast } from "@/components/ui/use-toast";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,32 +10,35 @@ const Index = () => {
     author?: string;
     date?: string;
   } | null>(null);
-  const { toast } = useToast();
+  const [error, setError] = useState<string | null>(null);
 
   const handleUrlSubmit = async (url: string) => {
     setIsLoading(true);
+    setError(null);
+    
     try {
-      // For now, we'll use a mock API call
-      // In the next iteration, we'll integrate with a real API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
+      const response = await fetch('YOUR_BACKEND_API_URL/scrape', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch article');
+      }
+
+      const data = await response.json();
       setArticle({
-        title: "Sample Article",
-        content: "<p>This is a sample article content. In the next iteration, we'll fetch real content from the provided URL.</p>",
-        author: "John Doe",
-        date: "March 14, 2024",
+        title: data.title,
+        content: data.content,
+        author: data.author,
+        date: data.date,
       });
-      
-      toast({
-        title: "Success",
-        description: "Article loaded successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load article",
-        variant: "destructive",
-      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load article');
+      console.error('Error fetching article:', err);
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +47,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white p-6">
       <div className="max-w-4xl mx-auto space-y-8">
-        <div className="space-y-4 text-center animate-fade-in">
+        <div className="space-y-4 text-center">
           <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
             Article Reader
           </h1>
@@ -55,6 +57,12 @@ const Index = () => {
         </div>
         
         <UrlInput onSubmit={handleUrlSubmit} isLoading={isLoading} />
+        
+        {error && (
+          <div className="text-red-400 text-center p-4 bg-red-400/10 rounded-lg">
+            {error}
+          </div>
+        )}
         
         {article && (
           <ArticleDisplay
